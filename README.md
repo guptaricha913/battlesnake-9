@@ -10,6 +10,6 @@ Battle Snake April 2021
 6. `git commit -m <commit-messages>`
 7. Set up personal access token (Settings -> Developer settings -> Personal access token)
 8. `git push -u origin <branch>`
-  * Enter `<Username>`
-  * Enter `<your personal access token> as password`
+   * Enter `<Username>`
+   * Enter `<your personal access token>` as password
  
