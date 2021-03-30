@@ -1,7 +1,7 @@
 # Shenron
 Battle Snake April 2021 
 
-## Git pull to GitHub from Repl.it
+## Git Push to GitHub from Repl.it
 1. `git clone <urlToRepl>`
 2. cp `../<files>` ./
 3. `git add *`
