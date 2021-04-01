@@ -15,3 +15,9 @@ Battle Snake April 2021
    * Enter `<Username>`
    * Enter `<your personal access token>` as password
 
+## Team
+
+1. Arshdeep Singh - Meetings and notes
+2. Richa Gupta - QA
+3. Shu W Wang - Deployment
+4. Xintong Li - Deployment
