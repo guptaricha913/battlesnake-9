@@ -1,4 +1,4 @@
-import collections
+from collections import deque
 
 
 class Preprocessing:
@@ -62,24 +62,24 @@ class Preprocessing:
         # Strategy: BFS, FloodFill
         y, x = self.me["head"]["y"], self.me["head"]["x"]
         self.distance[y][x] = 0
-        deque = collections.deque()
+        queue = deque()
         for direction, ny, nx in self.neighbors(y, x):
             self.distance[ny][nx] = 1
             self.direction[ny][nx] = direction
             if self.board[ny][nx] == 0:
-                deque.append((ny, nx))
-        while deque:
-            y, x = deque.popleft()
+                queue.append((ny, nx))
+        while queue:
+            y, x = queue.popleft()
             for direction, ny, nx in self.neighbors(y, x):
                 if self.distance[ny][nx] == -1:
                     self.distance[ny][nx] = self.distance[y][x] + 1
                     self.direction[ny][nx] = direction
                     if self.board[ny][nx] == 0:
-                        deque.append((ny, nx))
-            for i in range(self.height):
-                for j in range(self.width):
-                    if self.distance[i][j] == -1:
-                        self.distance[i][j] = -2  # unreachable
+                        queue.append((ny, nx))
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.distance[i][j] == -1:
+                    self.distance[i][j] = -2  # unreachable
 
     def closest_food(self):
         distance = 122
