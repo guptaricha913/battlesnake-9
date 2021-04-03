@@ -1,7 +1,8 @@
 import os
 import random
-
 import cherrypy
+
+import preprocessing as ppc
 
 """
 This is a simple Battlesnake server written in Python.
@@ -18,7 +19,7 @@ class Battlesnake(object):
         # TIP: If you open your Battlesnake URL in browser you should see this data
         return {
             "apiversion": "1",
-            "author": "",  # TODO: Your Battlesnake Username
+            "author": "Shenron",
             "color": "#888888",  # TODO: Personalize
             "head": "default",  # TODO: Personalize
             "tail": "default",  # TODO: Personalize
@@ -42,6 +43,7 @@ class Battlesnake(object):
         # Valid moves are "up", "down", "left", or "right".
         # TODO: Use the information in cherrypy.request.json to decide your next move.
         data = cherrypy.request.json
+        info = ppc.Preprocessing(data["board"], data["you"])
 
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
