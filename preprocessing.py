@@ -45,10 +45,10 @@ class Preprocessing:
 
     def neighbors(self, y, x):
         coordinates = {
-            'up': {'x': 0, 'y': -1 },
-            'down': {'x': 0, 'y': 1 },
-            'left': {'x': -1, 'y': 0 },
-            'right': {'x': 1, 'y': 0 },
+            'up': {'x': 0, 'y': -1},
+            'down': {'x': 0, 'y': 1},
+            'left': {'x': -1, 'y': 0},
+            'right': {'x': 1, 'y': 0},
         }
         neighbors = []
         for direction in ['up', 'down', 'left', 'right']:
@@ -63,13 +63,17 @@ class Preprocessing:
         y, x = self.me["head"]["y"], self.me["head"]["x"]
         self.distance[y][x] = 0
         queue = deque()
-        queue.append((y, x))
+        for direction, ny, nx in self.neighbors(y, x):
+            self.distance[ny][nx] = 1
+            self.direction[ny][nx] = direction
+            if self.board[ny][nx] == 0:
+                queue.append((ny, nx))
         while queue:
             y, x = queue.popleft()
             for direction, ny, nx in self.neighbors(y, x):
                 if self.distance[ny][nx] == -1:
                     self.distance[ny][nx] = self.distance[y][x] + 1
-                    self.direction[ny][nx] = direction
+                    self.direction[ny][nx] = self.direction[y][x]
                     if self.board[ny][nx] == 0:
                         queue.append((ny, nx))
         for i in range(self.height):
@@ -77,13 +81,13 @@ class Preprocessing:
                 if self.distance[i][j] == -1:
                     self.distance[i][j] = -2  # unreachable
 
-    def closest_food(self):
+    def closest_food(self, exclude=[]):
         distance = 122
         y, x = None, None
         for food in self.food:
             if self.distance[food['y']][food['x']] == -1:
                 self.get_distance()
-            if -1 < self.distance[food['y']][food['x']] < distance:
+            if -1 < self.distance[food['y']][food['x']] < distance and self.direction[food['y']][food['x']] not in exclude:
                 distance = self.distance[food['y']][food['x']]
                 y, x = food['y'], food['x']
         return y, x
