@@ -25,7 +25,6 @@ class Preprocessing:
         """
         We use number to denote different items on the board.
         0 for empty, 1 for (mine and rival snakes') body, 2 for rivals' head, 3 for my head, 4 for food
-
         The Y-Axis is positive in the up direction, and X-Axis is positive to the right
         """
         board = [[0] * self.width for _ in range(self.height)]
@@ -70,7 +69,7 @@ class Preprocessing:
                 queue.append((ny, nx))
         while queue:
             y, x = queue.popleft()
-            for direction, ny, nx in self.neighbors(y, x):
+            for _, ny, nx in self.neighbors(y, x):
                 if self.distance[ny][nx] == -1:
                     self.distance[ny][nx] = self.distance[y][x] + 1
                     self.direction[ny][nx] = self.direction[y][x]
