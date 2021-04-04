@@ -15,3 +15,12 @@ Battle Snake April 2021
    * Enter `<Username>`
    * Enter `<your personal access token>` as password
 
+## Team
+
+1. Arshdeep Singh - Meetings and notes
+2. Richa Gupta - QA
+3. Shu W Wang - Deployment
+4. Xintong Li - Deployment
+
+`Preprocessing.py` was created to preprocess the information of the game. 
+`init_map` is a helper function which assign each grid on the board with a number that denotes different items.
