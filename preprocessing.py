@@ -87,7 +87,7 @@ class Preprocessing:
         for food in self.food:
             if self.distance[food['y']][food['x']] == -1:
                 self.get_distance()
-            if -1 < self.distance[food['y']][food['x']] < distance && self.direction[food['y']][food['x']] not in exclude:
+            if -1 < self.distance[food['y']][food['x']] < distance and self.direction[food['y']][food['x']] not in exclude:
                 distance = self.distance[food['y']][food['x']]
                 y, x = food['y'], food['x']
         return y, x
