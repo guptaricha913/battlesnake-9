@@ -45,10 +45,10 @@ class Preprocessing:
 
     def neighbors(self, y, x):
         coordinates = {
-            'up': {'x': 0, 'y': -1, },
-            'down': {'x': 0, 'y': 1, },
-            'left': {'x': -1, 'y': 0, },
-            'right': {'x': 1, 'y': 0, },
+            'up': {'x': 0, 'y': -1 },
+            'down': {'x': 0, 'y': 1 },
+            'left': {'x': -1, 'y': 0 },
+            'right': {'x': 1, 'y': 0 },
         }
         neighbors = []
         for direction in ['up', 'down', 'left', 'right']:
@@ -63,11 +63,7 @@ class Preprocessing:
         y, x = self.me["head"]["y"], self.me["head"]["x"]
         self.distance[y][x] = 0
         queue = deque()
-        for direction, ny, nx in self.neighbors(y, x):
-            self.distance[ny][nx] = 1
-            self.direction[ny][nx] = direction
-            if self.board[ny][nx] == 0:
-                queue.append((ny, nx))
+        queue.append((y, x))
         while queue:
             y, x = queue.popleft()
             for direction, ny, nx in self.neighbors(y, x):
