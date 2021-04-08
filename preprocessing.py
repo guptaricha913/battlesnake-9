@@ -91,3 +91,26 @@ class Preprocessing:
                 distance = self.distance[food['y']][food['x']]
                 y, x = food['y'], food['x']
         return y, x
+
+    def movement_check(self):
+        """
+        Recommends a list of possible moves by eliminating 
+        illegal moves
+        """
+        y, x = self.me["head"]["y"], self.me["head"]["x"]
+        path_suggest = []
+
+        for i in [1, -1]:
+            if(self.coordinate_check(y + i, x) not in [-1, 1]):
+                path_suggest.append("up" if (i == 1) else "down")
+            if(self.coordinate_check(y, x + i) not in [-1, 1]):
+                path_suggest.append("right" if (i == 1) else "left")
+        
+        return path_suggest
+
+    def coordinate_check(self, y, x):
+        """
+        Checks the given co-ordinate and returns -1 for out of bounds
+        and regular self.board output for the rest.
+        """
+        return self.board[y][x] if (0 < x < self.width or 0 < y < self.height) else -1
