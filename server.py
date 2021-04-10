@@ -51,6 +51,7 @@ class Battlesnake(object):
         move = random.choice(legal_moves)
 
         print(f"MOVE: {move}")
+        print(f"LEGAL MOVES: {legal_moves}")
         return {"move": move}
 
     @cherrypy.expose
