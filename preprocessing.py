@@ -1,4 +1,5 @@
 from collections import deque
+import json
 
 
 class Preprocessing:
@@ -112,4 +113,5 @@ class Preprocessing:
         Checks the given co-ordinate and returns -1 for out of bounds
         and regular self.board output for the rest.
         """
-        return self.board[y][x] if (0 <= x < self.width or 0 <= y < self.height) else -1
+        print(f"X: {x}, Y: {y}, SELF: {json.dumps(self.board)}")
+        return self.board[y][x] if (0 <= x < self.width and 0 <= y < self.height) else -1
