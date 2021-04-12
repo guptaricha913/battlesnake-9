@@ -15,11 +15,12 @@ class Preprocessing:
         self.distance = [[-1] * self.width for _ in range(self.height)]
         """
         Distance[y][x] is the distance between "my head" to the grid (x, y)
-        Distance[y][x] = -1 means unchecked, Distance[y][x] = -2 means unreachable
+        Distance[y][x] = -1 means unreachable
         Call get_distance() to fill self.distance with information
         """
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
+        self.get_distance()
 
     def init_board(self):
         """
@@ -76,10 +77,6 @@ class Preprocessing:
                     self.direction[ny][nx] = self.direction[y][x]
                     if self.board[ny][nx] == 0:
                         queue.append((ny, nx))
-        for i in range(self.height):
-            for j in range(self.width):
-                if self.distance[i][j] == -1:
-                    self.distance[i][j] = -2  # unreachable
 
     def closest_food(self, allowed_direction=None):
         if allowed_direction is None:
@@ -87,8 +84,6 @@ class Preprocessing:
         distance = 122
         y, x = None, None
         for food in self.food:
-            if self.distance[food['y']][food['x']] == -1:
-                self.get_distance()
             if -1 < self.distance[food['y']][food['x']] <= distance and \
                     self.direction[food['y']][food['x']] in allowed_direction:
                 distance = self.distance[food['y']][food['x']]
