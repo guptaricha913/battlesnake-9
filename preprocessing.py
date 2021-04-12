@@ -173,12 +173,12 @@ class Preprocessing:
     def get_weights(self, legal_directions):
         """
         Passive/Defensive Strategy:
-            1. Only looking for food when health < 36
+            1. Only looking for food when health < 36 or #rivals less than 3
             2. Avoid Corners and being besieged
             3. Passive Strategy against rival snakes
                 - Trade-off between attacking and going into a corner
                 - Adjust Weight: Need to take care of the weights added from avoid_corners()
-            
+
         """
         INT_MIN, INT_MAX = -10 ** 3, 10 ** 3
         weights = {ld: 0 for ld in legal_directions}
