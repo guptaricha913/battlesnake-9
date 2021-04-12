@@ -48,10 +48,13 @@ class Battlesnake(object):
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
         legal_moves = info.movement_check()
-        move = random.choice(legal_moves)
+        #move = random.choice(legal_moves)
+        weighted_moves = info.get_weights(legal_moves)
+        moves = sorted(weighted_moves, key=lambda x: x[1])
+        move = moves[0]
 
         print(f"MOVE: {move}")
-        print(f"LEGAL MOVES: {legal_moves}")
+        print(f"LEGAL MOVES: {weighted_moves}")
         return {"move": move}
 
     @cherrypy.expose
@@ -69,7 +72,7 @@ if __name__ == "__main__":
     server = Battlesnake()
     cherrypy.config.update({"server.socket_host": "0.0.0.0"})
     cherrypy.config.update(
-        {"server.socket_port": int(os.environ.get("PORT", "8080")),}
+        {"server.socket_port": int(os.environ.get("PORT", "8080")), }
     )
     print("Starting Battlesnake Server...")
     cherrypy.quickstart(server)
