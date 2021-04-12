@@ -1,6 +1,7 @@
 from collections import deque
 import json
 
+INT_MIN, INT_MAX = -10 ** 3, 10 ** 3
 
 class Preprocessing:
     def __init__(self, board, me):  # board = data["board"], me = data["me"]
@@ -21,6 +22,8 @@ class Preprocessing:
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
         self.get_distance()
+        
+        self.weights = [[0] * self.width for _ in range(self.height)]
 
     def init_board(self):
         """
@@ -175,7 +178,6 @@ class Preprocessing:
                 - Adjust Weight: Need to take care of the weights added from avoid_corners()
 
         """
-        INT_MIN, INT_MAX = -10 ** 3, 10 ** 3
         weights = {ld: 0 for ld in legal_directions}
 
         if self.me["health"] < 36 or len(self.snakes) < 4:
