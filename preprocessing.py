@@ -1,16 +1,16 @@
 from collections import deque
+import json
 
 
 class Preprocessing:
     def __init__(self, board, me):  # board = data["board"], me = data["me"]
-        self.board = board
         self.me = me
         self.height = board["height"]
         self.width = board["width"]
         self.food = board["food"]
         self.snakes = board["snakes"]
         # self.hazards = board["hazards"]
-        self.map = self.init_map()
+        self.board = self.init_board()
 
         self.distance = [[-1] * self.width for _ in range(self.height)]
         """
@@ -21,7 +21,7 @@ class Preprocessing:
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
 
-    def init_map(self):
+    def init_board(self):
         """
         We use number to denote different items on the board.
         0 for empty, 1 for (mine and rival snakes') body, 2 for rivals' head, 3 for my head, 4 for food
@@ -91,3 +91,27 @@ class Preprocessing:
                 distance = self.distance[food['y']][food['x']]
                 y, x = food['y'], food['x']
         return y, x
+
+    def movement_check(self):
+        """
+        Recommends a list of possible moves by eliminating 
+        illegal moves
+        """
+        y, x = self.me["head"]["y"], self.me["head"]["x"]
+        path_suggest = []
+
+        for i in [1, -1]:
+            if(self.coordinate_check(y + i, x) not in [-1, 1, 2]):
+                path_suggest.append("up" if (i == 1) else "down")
+            if(self.coordinate_check(y, x + i) not in [-1, 1, 2]):
+                path_suggest.append("right" if (i == 1) else "left")
+        
+        return path_suggest
+
+    def coordinate_check(self, y, x):
+        """
+        Checks the given co-ordinate and returns -1 for out of bounds
+        and regular self.board output for the rest.
+        """
+        print(f"X: {x}, Y: {y}, SELF: {json.dumps(self.board)}")
+        return self.board[y][x] if (0 <= x < self.width and 0 <= y < self.height) else -1
