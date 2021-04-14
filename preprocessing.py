@@ -37,7 +37,8 @@ class Preprocessing:
         """
         board = [[0] * self.width for _ in range(self.height)]
         for snake in self.snakes:
-            for body in snake["body"]:
+            #Don't count tail as it'll move in next step
+            for body in snake["body"][:-1]:
                 board[body["y"]][body["x"]] = 1
             head = snake["head"]
             board[head["y"]][head["x"]] = 2
