@@ -48,8 +48,9 @@ class Preprocessing:
                 for h_n in head_neighbours:
                     if (0 <= head["x"] < self.width and 0 <= head["y"] < self.height):
                         board[h_n[1]][h_n[2]] = 5
-        
-        for body in self.me["body"]:
+
+        #Don't count tail as it'll move in next step
+        for body in self.me["body"][:-1]:
             board[body["y"]][body["x"]] = 1
         head = self.me["head"]
         board[head["y"]][head["x"]] = 3
