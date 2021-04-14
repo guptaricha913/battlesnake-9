@@ -146,7 +146,7 @@ class Preprocessing:
     def avoid_snakes(self):
         pass
 
-    def detect_food(self):
+    def detect_food(self, coef):
         pass
 
     def attack_rivals(self):  # attack and defend
@@ -163,5 +163,6 @@ class Preprocessing:
         """
         self.avoid_corners()
         self.avoid_snakes()
-        self.detect_food()
+        food_coef = 1 #+ 2 *
+        self.detect_food(food_coef)
         self.attack_rivals()
