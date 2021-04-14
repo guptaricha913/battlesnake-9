@@ -24,6 +24,9 @@ class Preprocessing:
         self.get_distance()
         
         self.weights = [[0] * self.width for _ in range(self.height)]
+        """
+        self.weights can be modified by avoid_corners(), attack_rivals() and detect_food()
+        """
 
     def init_board(self):
         """
@@ -122,23 +125,23 @@ class Preprocessing:
         print(f"X: {x}, Y: {y}, SELF: {json.dumps(self.me)}")
         return self.board[y][x] if (0 <= x < self.width and 0 <= y < self.height) else -1
 
-    def avoid_corners(self, legal_directions):
-        corners = []
-        # corners are grid of which two or more sides are wall or snake's body
-        y, x = self.me["head"]["y"], self.me["head"]["x"]
-        neighbors = list(filter(lambda nbr: nbr[0] in legal_directions, self.neighbors(y, x)))
-        for direction, ny, nx in neighbors:
-            safe_area = len(list(filter(lambda nbr: self.board[nbr[1]][nbr[2]] == 0 or self.board[nbr[1]][nbr[2]] == 4,
-                                        self.neighbors(ny, nx))))
-            if safe_area < 3:
-                weight = 0.7
-                if safe_area < 1:
-                    weight = 2.7
-                elif safe_area < 2:
-                    weight = 1.5
-                corners.append((direction, weight))
-
-        return corners
+    def avoid_corners(self):
+        # Add weights to area around walls. Assign heavy weight to corners
+        corner_weights = [[8, 6, 5, 4], [6, 5, 4, 2], [5, 4, 2, 1]]
+        for i in range(3):
+            for j in range(self.width):
+                self.weights[i][j] = max(self.weights[i][j], corner_weights[i][min(3, j)])
+                self.weights[i][self.width - 1 - j] = max(self.weights[i][self.width - 1 - j], corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - i][j] = max(self.weights[self.height - 1 - i][j], corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - i][self.width - 1 - j] = max(self.weights[self.height - 1 - i][self.width - 1 - j],
+                                                                            corner_weights[i][min(3, j)])
+        for i in range(3):
+            for j in range(self.height):
+                self.weights[j][i] = max(self.weights[j][i], corner_weights[i][min(3, j)])
+                self.weights[j][self.width - 1 - i] = max(self.weights[j][self.width - 1 - i], corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - j][i] = max(self.weights[self.height - 1 - j][i], corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - j][self.width - 1 - i] = max(self.weights[self.height - 1 - j][self.width - 1 - i],
+                                                             corner_weights[i][min(3, j)])
 
     def attack_rivals(self, legal_directions):  # attack and defend
         y, x = self.me["head"]["y"], self.me["head"]["x"]
@@ -171,11 +174,9 @@ class Preprocessing:
     def get_weights(self, legal_directions):
         """
         Passive/Defensive Strategy:
-            1. Only looking for food when health < 36 or #rivals less than 3
-            2. Avoid Corners and being besieged
-            3. Passive Strategy against rival snakes
-                - Trade-off between attacking and going into a corner
-                - Adjust Weight: Need to take care of the weights added from avoid_corners()
+            1. Must call avoid_corners() first
+            2. Call attack_rivals()
+            3. Call detect_food()
 
         """
         weights = {ld: 0 for ld in legal_directions}
