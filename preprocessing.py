@@ -36,6 +36,10 @@ class Preprocessing:
         The Y-Axis is positive in the up direction, and X-Axis is positive to the right
         """
         board = [[0] * self.width for _ in range(self.height)]
+    
+        for food in self.food:
+            board[food["y"]][food["x"]] = 4
+ 
         for snake in self.snakes:
             #Don't count tail as it'll move in next step
             for body in snake["body"][:-1]:
@@ -54,8 +58,6 @@ class Preprocessing:
             board[body["y"]][body["x"]] = 1
         head = self.me["head"]
         board[head["y"]][head["x"]] = 3
-        for food in self.food:
-            board[food["y"]][food["x"]] = 4
 
         return board
 
