@@ -143,77 +143,25 @@ class Preprocessing:
                 self.weights[self.height - 1 - j][self.width - 1 - i] = max(self.weights[self.height - 1 - j][self.width - 1 - i],
                                                              corner_weights[i][min(3, j)])
 
-    def attack_rivals(self, legal_directions):  # attack and defend
-        y, x = self.me["head"]["y"], self.me["head"]["x"]
-        neighbors = map(lambda nb: (nb[1], nb[2]), self.neighbors(y, x))
-        rival_moves = {ld: 0 for ld in legal_directions}
-        snakes = [(y + i, x + i) for i in [-1, 1]] + [(y + i, x - i) for i in [-1, 1]] + [(y + i) for i in [-2, 2]] \
-                 + [(x + i) for i in [-2, 2]]
-        snakes = list(filter(lambda pos: self.coordinate_check(pos[0], pos[1]) == 2, snakes))
-        for snake in snakes:
-            possible_moves = list(filter(lambda pos: self.board[pos[1]][pos[2]] == 0 or self.board[pos[1]][pos[2]] == 4,
-                                         self.neighbors(snake[0], snake[1])))
-            for _, move_y, move_x in possible_moves:
-                if (move_y, move_x) in neighbors:
-                    pass
-                """
-                if (move_y, move_x) has food and snake["health"] is low, then assign high prob to this position
-                """
-            for snake_info in self.snakes:
-                if (snake_info["head"]["y"], snake_info["head"]["x"]) == snake:
-                    if snake_info["length"] >= self.me["length"]:
-                        pass  # positive prob_weight
-                    else:
-                        pass  # negative prob_weight
+    def avoid_snakes(self):
+        pass
 
-        return [(key, val) for key, val in rival_moves.items()]
+    def detect_food(self):
+        pass
 
-    def check_sparsity(self):
+    def attack_rivals(self):  # attack and defend
         pass
 
     def get_weights(self, legal_directions):
         """
         Passive/Defensive Strategy:
             1. Must call avoid_corners() first
-            2. Call attack_rivals()
+            2. Call avoid_snakes()
             3. Call detect_food()
+            4. Call attack_rivals()
 
         """
-        weights = {ld: 0 for ld in legal_directions}
-
-        if self.me["health"] < 36 or len(self.snakes) < 4:
-            direction_of_food = self.closest_food(legal_directions)
-            for y, x in direction_of_food:
-                if self.me["health"] < 6:
-                    weights[self.direction[y][x]] += INT_MIN * 3
-                elif len(self.snakes) < 3:
-                    weights[self.direction[y][x]] += INT_MIN
-                elif self.me["health"] < 15:
-                    weights[self.direction[y][x]] += INT_MIN
-                elif len(self.snakes) == 4:
-                    weights[self.direction[y][x]] += int(INT_MIN / 2)
-                elif self.me["health"] < 28:
-                    weights[self.direction[y][x]] += int(INT_MIN / 2)
-                else:
-                    weights[self.direction[y][x]] += int(INT_MIN / 10)
-
-        corners = self.avoid_corners(legal_directions)
-        for direction, corner_weight in corners:
-            weights[direction] += corner_weight * INT_MAX
-
-        rival_moves = self.attack_rivals(legal_directions)
-        for direction, prob_weight in rival_moves:
-            if prob_weight > 0:
-                weights[direction] += prob_weight * INT_MAX * 2
-            elif prob_weight < 0 and prob_weight == -1:  # no active attack there is uncertainty
-                weights[direction] += prob_weight * int(INT_MAX / 2)
-                """
-                Goal of attack: 
-                1. Eliminate Rival if prob_weight == -1
-                2. Drive rival into a corner if -1 < prob_weight < 0
-                    - Multiple Cases to check ....
-                """
-
-        # Place Holder for moving to a sparse area
-
-        return [(key, val) for key, val in weights.items()]  # convert dict to tuple
+        self.avoid_corners()
+        self.avoid_snakes()
+        self.detect_food()
+        self.attack_rivals()
