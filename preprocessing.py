@@ -22,7 +22,6 @@ class Preprocessing:
         """
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
-        self.get_distance()
 
         self.weights = [[0] * self.width for _ in range(self.height)]
         """
@@ -68,19 +67,21 @@ class Preprocessing:
                 neighbors.append((direction, Y, X))
         return neighbors
 
-    def get_distance(self):
+    def get_distance(self, ordered_directions=None):
         # Strategy: BFS, FloodFill
+        if ordered_directions is None:
+            ordered_directions = ['up', 'down', 'left', 'right']
         y, x = self.me["head"]["y"], self.me["head"]["x"]
         self.distance[y][x] = 0
         queue = deque()
-        for direction, ny, nx in self.neighbors(y, x):
+        for direction, ny, nx in self.neighbors(y, x, ordered_directions):
             self.distance[ny][nx] = 1
             self.direction[ny][nx] = direction
             if self.board[ny][nx] == 0:
                 queue.append((ny, nx))
         while queue:
             y, x = queue.popleft()
-            for _, ny, nx in self.neighbors(y, x):
+            for _, ny, nx in self.neighbors(y, x, ordered_directions):
                 if self.distance[ny][nx] == -1:
                     self.distance[ny][nx] = self.distance[y][x] + 1
                     self.direction[ny][nx] = self.direction[y][x]
@@ -90,6 +91,8 @@ class Preprocessing:
     def closest_food(self, allowed_direction=None):
         if allowed_direction is None:
             allowed_direction = []
+        ordered_directions = allowed_direction + [i for i in ['up', 'down', 'left', 'right'] if i not in allowed_direction]
+        self.get_distance(ordered_directions)
         distance = 122
         y, x = None, None
         for food in self.food:
@@ -259,3 +262,12 @@ class Preprocessing:
         self.detect_food(food_coef)
 
         #self.attack_rivals()
+
+    def get_shortest_path(self, level=5):
+        """
+        Can only be called after self.get_weights() is called
+        Modify self.distance -> shortest weight in the path from head to (x, y)
+        :param level:
+        :return:
+        """
+        pass
