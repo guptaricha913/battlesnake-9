@@ -4,6 +4,7 @@ import random
 
 INT_MIN, INT_MAX = -10 ** 3, 10 ** 3
 
+
 class Preprocessing:
     def __init__(self, board, me):  # board = data["board"], me = data["me"]
         self.me = me
@@ -22,7 +23,7 @@ class Preprocessing:
         """
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
-        
+
         self.weights = [[0] * self.width for _ in range(self.height)]
         """
         self.weights can be modified by avoid_corners(), attack_rivals() and detect_food()
@@ -36,12 +37,12 @@ class Preprocessing:
         The Y-Axis is positive in the up direction, and X-Axis is positive to the right
         """
         board = [[0] * self.width for _ in range(self.height)]
-    
+
         for food in self.food:
             board[food["y"]][food["x"]] = 4
- 
+
         for snake in self.snakes:
-            #Don't count tail as it'll move in next step
+            # Don't count tail as it'll move in next step
             for body in snake["body"][:-1]:
                 board[body["y"]][body["x"]] = 1
             head = snake["head"]
@@ -53,7 +54,7 @@ class Preprocessing:
                     if 0 <= head["x"] < self.width and 0 <= head["y"] < self.height:
                         board[h_n[1]][h_n[2]] = 5
 
-        #Don't count tail as it'll move in next step
+        # Don't count tail as it'll move in next step
         for body in self.me["body"][:-1]:
             board[body["y"]][body["x"]] = 1
         head = self.me["head"]
@@ -145,20 +146,20 @@ class Preprocessing:
         and regular self.board output for the rest.
         """
         return self.board[y][x] if (0 <= x < self.width and 0 <= y < self.height) else -1
-    
+
     def enclosed_space(self, y, x, turn):
         queue = deque()
         board = [[0] * self.width for _ in range(self.height)]
         size = 1
         for k, ny, nx in self.neighbors(y, x):
-            if (self.board[ny][nx] in [0,4]) and (board[ny][nx] != 69):
+            if (self.board[ny][nx] in [0, 4]) and (board[ny][nx] != 69):
                 board[ny][nx] = 69
                 queue.append((ny, nx))
                 size += 1
         while queue:
             my, mx = queue.popleft()
             for k, ny, nx in self.neighbors(my, mx):
-                if (self.board[ny][nx] in [0,4]) and (board[ny][nx] != 69):
+                if (self.board[ny][nx] in [0, 4]) and (board[ny][nx] != 69):
                     board[ny][nx] = 69
                     queue.append((ny, nx))
                     size += 1
@@ -174,7 +175,7 @@ class Preprocessing:
         }
         best_direction = [directions[0]]
         greatest_space = 0
-        
+
         for direction in directions:
             Y = self.me["head"]["y"] + coordinates[direction]['y']
             X = self.me["head"]["x"] + coordinates[direction]['x']
@@ -184,7 +185,7 @@ class Preprocessing:
                 best_direction = [direction]
             elif cur_space == greatest_space:
                 best_direction.append(direction)
-        
+
         print(f"BEST MOVES: {best_direction}")
         return self.hungry_direction(best_direction)
 
@@ -193,6 +194,8 @@ class Preprocessing:
         self.get_distance(ordered_directions)
         closest_foods = self.closest_food(directions)
         food_selected = random.choice(closest_foods)
+        if food_selected[0] is None:  # No
+            return random.choice(directions)
         return self.direction[food_selected[0]][food_selected[1]]
 
     # def avoid_corners(self):
