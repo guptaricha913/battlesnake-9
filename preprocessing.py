@@ -185,7 +185,10 @@ class Preprocessing:
                 best_direction.append(direction)
         
         print(f"BEST MOVES: {best_direction}")
-        return random.choice(best_direction)
+        return self.prefer_food_or_random(best_direction)
+
+    def prefer_food_or_random(self, directions):
+        return random.choice(directions)
 
     # def avoid_corners(self):
     #     # Add weights to area around walls. Assign heavy weight to corners
