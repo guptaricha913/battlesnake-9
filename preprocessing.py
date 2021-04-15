@@ -106,11 +106,11 @@ class Preprocessing:
         for food in self.food:
             if -1 < self.distance[food['y']][food['x']] <= distance and \
                     self.direction[food['y']][food['x']] in allowed_direction:
-                distance = self.distance[food['y']][food['x']]
-                print("closest_food:", (y, x), self.distance[y][x])
+                print("closest_food:", (food['y'], food['x']), self.distance[food['y']][food['x']])
                 if self.distance[food['y']][food['x']] == distance:
                     y, x = list(y) + [food['y']], list(x) + [food['x']]
                 else:
+                    distance = self.distance[food['y']][food['x']]
                     y, x = food['y'], food['x']
         return list(zip(y, x)) if type(y) is list else [(y, x)]
 
