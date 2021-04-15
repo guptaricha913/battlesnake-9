@@ -188,7 +188,6 @@ class Preprocessing:
         return self.prefer_food_or_random(best_direction)
 
     def prefer_food_or_random(self, directions):
-        //TODO: Implement to prefer food over random
         return random.choice(directions)
 
     # def avoid_corners(self):
