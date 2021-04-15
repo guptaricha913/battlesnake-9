@@ -1,5 +1,6 @@
 from collections import deque
 import json
+import random
 
 INT_MIN, INT_MAX = -10 ** 3, 10 ** 3
 
@@ -144,6 +145,48 @@ class Preprocessing:
         """
         return self.board[y][x] if (0 <= x < self.width and 0 <= y < self.height) else -1
     
+    def enclosed_space(self, y, x, turn):
+        queue = deque()
+        board = [[0] * self.width for _ in range(self.height)]
+        size = 1
+        for k, ny, nx in self.neighbors(y, x):
+            if (self.board[ny][nx] in [0,4]) and (board[ny][nx] != 69):
+                board[ny][nx] = 69
+                queue.append((ny, nx))
+                size += 1
+        while queue:
+            my, mx = queue.popleft()
+            for k, ny, nx in self.neighbors(my, mx):
+                if (self.board[ny][nx] in [0,4]) and (board[ny][nx] != 69):
+                    board[ny][nx] = 69
+                    queue.append((ny, nx))
+                    size += 1
+        print(f"X: {x}, Y: {y}, SIZE: {size}, TURN: {turn}")
+        return size
+
+    def pick_direction(self, directions, turn):
+        coordinates = {
+            'up': {'x': 0, 'y': 1},
+            'down': {'x': 0, 'y': -1},
+            'left': {'x': -1, 'y': 0},
+            'right': {'x': 1, 'y': 0},
+        }
+        best_direction = [directions[0]]
+        greatest_space = 0
+        
+        for direction in directions:
+            Y = self.me["head"]["y"] + coordinates[direction]['y']
+            X = self.me["head"]["x"] + coordinates[direction]['x']
+            cur_space = self.enclosed_space(Y, X, turn)
+            if (cur_space > greatest_space):
+                greatest_space = cur_space
+                best_direction = [direction]
+            elif (cur_space == greatest_space):
+                best_direction.append(direction)
+        
+        print(f"BEST MOVES: {best_direction}")
+        return random.choice(best_direction)
+
     # def avoid_corners(self):
     #     # Add weights to area around walls. Assign heavy weight to corners
     #     corner_weights = [[8, 6, 5, 4], [6, 5, 4, 2], [5, 4, 2, 1]]

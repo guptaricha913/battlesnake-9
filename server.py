@@ -48,7 +48,8 @@ class Battlesnake(object):
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
         legal_moves = info.movement_check()
-        move = random.choice(legal_moves)
+        move = info.pick_direction(legal_moves, data["turn"])
+        #move = random.choice(legal_moves)
         #weighted_moves = info.get_weights(legal_moves)
         #moves = sorted(weighted_moves, key=lambda x: x[1])
         #move = moves[0]
