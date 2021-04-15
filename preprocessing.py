@@ -3,6 +3,7 @@ import json
 
 INT_MIN, INT_MAX = -10 ** 3, 10 ** 3
 
+
 class Preprocessing:
     def __init__(self, board, me):  # board = data["board"], me = data["me"]
         self.me = me
@@ -22,10 +23,10 @@ class Preprocessing:
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
         self.get_distance()
-        
+
         self.weights = [[0] * self.width for _ in range(self.height)]
         """
-        self.weights can be modified by avoid_corners(), attack_rivals() and detect_food()
+        self.weights can be modified by avoid_corners(), avoid_snakes(), attack_rivals() and detect_food()
         """
 
     def init_board(self):
@@ -77,7 +78,7 @@ class Preprocessing:
                 queue.append((ny, nx))
         while queue:
             y, x = queue.popleft()
-            for direction, ny, nx in self.neighbors(y, x):
+            for _, ny, nx in self.neighbors(y, x):
                 if self.distance[ny][nx] == -1:
                     self.distance[ny][nx] = self.distance[y][x] + 1
                     self.direction[ny][nx] = self.direction[y][x]
@@ -131,28 +132,55 @@ class Preprocessing:
         for i in range(3):
             for j in range(self.width):
                 self.weights[i][j] = max(self.weights[i][j], corner_weights[i][min(3, j)])
-                self.weights[i][self.width - 1 - j] = max(self.weights[i][self.width - 1 - j], corner_weights[i][min(3, j)])
-                self.weights[self.height - 1 - i][j] = max(self.weights[self.height - 1 - i][j], corner_weights[i][min(3, j)])
-                self.weights[self.height - 1 - i][self.width - 1 - j] = max(self.weights[self.height - 1 - i][self.width - 1 - j],
-                                                                            corner_weights[i][min(3, j)])
+                self.weights[i][self.width - 1 - j] = max(self.weights[i][self.width - 1 - j],
+                                                          corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - i][j] = max(self.weights[self.height - 1 - i][j],
+                                                           corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - i][self.width - 1 - j] = max(
+                    self.weights[self.height - 1 - i][self.width - 1 - j],
+                    corner_weights[i][min(3, j)])
         for i in range(3):
             for j in range(self.height):
                 self.weights[j][i] = max(self.weights[j][i], corner_weights[i][min(3, j)])
-                self.weights[j][self.width - 1 - i] = max(self.weights[j][self.width - 1 - i], corner_weights[i][min(3, j)])
-                self.weights[self.height - 1 - j][i] = max(self.weights[self.height - 1 - j][i], corner_weights[i][min(3, j)])
-                self.weights[self.height - 1 - j][self.width - 1 - i] = max(self.weights[self.height - 1 - j][self.width - 1 - i],
-                                                             corner_weights[i][min(3, j)])
+                self.weights[j][self.width - 1 - i] = max(self.weights[j][self.width - 1 - i],
+                                                          corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - j][i] = max(self.weights[self.height - 1 - j][i],
+                                                           corner_weights[i][min(3, j)])
+                self.weights[self.height - 1 - j][self.width - 1 - i] = max(
+                    self.weights[self.height - 1 - j][self.width - 1 - i],
+                    corner_weights[i][min(3, j)])
 
     def avoid_snakes(self):
         pass
 
     def detect_food(self, coef):
-        pass
+        unit_weight = -6 * coef
+        food_weights = [[0] * self.width for _ in range(self.height)]
+        last, level = None, 0
+        queue = deque()
+        for food in self.food:
+            y, x = food['y'], food['x']
+            last = (y, x)
+            queue.append((y, x))
+            food_weights[y][x] = min(food_weights[y][x], unit_weight)
+        while queue and level < 5:
+            y, x = queue.popleft()
+            flag = ((y, x) == last)
+            for _, ny, nx in self.neighbors(y, x):
+                food_weights[y][x] = min(food_weights[y][x], unit_weight + (level + 1))
+                if flag == 1:
+                    last = (ny, nx)
+                queue.append((ny, nx))
+            if flag == 1: level += 1
+        for i in range(self.height):
+            for j in range(self.width):
+                self.weights[i][j] = self.weights[i][j] + int(food_weights[i][j]) \
+                    if self.weights[i][j] < INT_MAX else self.weights[i][j]
 
     def attack_rivals(self):  # attack and defend
         pass
 
-    def get_weights(self, legal_directions):
+    def get_weights(self):
         """
         Passive/Defensive Strategy:
             1. Must call avoid_corners() first
@@ -161,8 +189,21 @@ class Preprocessing:
             4. Call attack_rivals()
 
         """
-        self.avoid_corners()
-        self.avoid_snakes()
-        food_coef = 1 #+ 2 *
+        for i in range(self.height):
+            for j in range(self.width):
+                if 1 <= self.board[i][j] <= 3:
+                    self.weights[i][j] = INT_MAX
+
+        #self.avoid_corners()
+        #self.avoid_snakes()
+
+        health = [5, 10, 15, 20, 30, 50, 80, 100]
+        coefficients = [1.7, 1.4, 1.2, 1, 0.75, 0.5, 0.2, 0.1]
+        food_coef = 1
+        for i in range(8):
+            if self.me["health"] <= health[i]:
+                food_coef = coefficients[i]
+                break
         self.detect_food(food_coef)
-        self.attack_rivals()
+
+        #self.attack_rivals()
