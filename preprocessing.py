@@ -22,7 +22,6 @@ class Preprocessing:
         """
         self.direction = [[None] * self.width for _ in range(self.height)]  # "up" or "down" or "left" or "right"
         # Updated along with self.distance
-        self.get_distance()
         
         self.weights = [[0] * self.width for _ in range(self.height)]
         """
@@ -48,10 +47,10 @@ class Preprocessing:
             head = snake["head"]
             board[head["y"]][head["x"]] = 2
 
-            if(snake["length"] >= self.me["length"]):
+            if snake["length"] >= self.me["length"]:
                 head_neighbours = self.neighbors(head["y"], head["x"])
                 for h_n in head_neighbours:
-                    if (0 <= head["x"] < self.width and 0 <= head["y"] < self.height):
+                    if 0 <= head["x"] < self.width and 0 <= head["y"] < self.height:
                         board[h_n[1]][h_n[2]] = 5
 
         #Don't count tail as it'll move in next step
@@ -62,7 +61,9 @@ class Preprocessing:
 
         return board
 
-    def neighbors(self, y, x):
+    def neighbors(self, y, x, ordered_directions=None):
+        if ordered_directions is None:
+            ordered_directions = ['up', 'down', 'left', 'right']
         coordinates = {
             'up': {'x': 0, 'y': 1},
             'down': {'x': 0, 'y': -1},
@@ -70,35 +71,35 @@ class Preprocessing:
             'right': {'x': 1, 'y': 0},
         }
         neighbors = []
-        for direction in ['up', 'down', 'left', 'right']:
+        for direction in ordered_directions:
             Y = y + coordinates[direction]['y']
             X = x + coordinates[direction]['x']
             if 0 <= Y < self.height and 0 <= X < self.width:
                 neighbors.append((direction, Y, X))
         return neighbors
 
-    def get_distance(self):
+    def get_distance(self, ordered_directions=None):
         # Strategy: BFS, FloodFill
         y, x = self.me["head"]["y"], self.me["head"]["x"]
+        if ordered_directions is None:
+            ordered_directions = ['up', 'down', 'left', 'right']
         self.distance[y][x] = 0
         queue = deque()
-        for direction, ny, nx in self.neighbors(y, x):
+        for direction, ny, nx in self.neighbors(y, x, ordered_directions):
             self.distance[ny][nx] = 1
             self.direction[ny][nx] = direction
             if self.board[ny][nx] == 0:
                 queue.append((ny, nx))
         while queue:
             y, x = queue.popleft()
-            for direction, ny, nx in self.neighbors(y, x):
+            for _, ny, nx in self.neighbors(y, x, ordered_directions):
                 if self.distance[ny][nx] == -1:
                     self.distance[ny][nx] = self.distance[y][x] + 1
                     self.direction[ny][nx] = self.direction[y][x]
                     if self.board[ny][nx] == 0:
                         queue.append((ny, nx))
 
-    def closest_food(self, allowed_direction=None):
-        if allowed_direction is None:
-            allowed_direction = []
+    def closest_food(self, allowed_direction):
         distance = 122
         y, x = None, None
         for food in self.food:
@@ -178,18 +179,21 @@ class Preprocessing:
             Y = self.me["head"]["y"] + coordinates[direction]['y']
             X = self.me["head"]["x"] + coordinates[direction]['x']
             cur_space = self.enclosed_space(Y, X, turn)
-            if (cur_space > greatest_space):
+            if cur_space > greatest_space:
                 greatest_space = cur_space
                 best_direction = [direction]
-            elif (cur_space == greatest_space):
+            elif cur_space == greatest_space:
                 best_direction.append(direction)
         
         print(f"BEST MOVES: {best_direction}")
-        return self.prefer_food_or_random(best_direction)
+        return self.hungry_direction(best_direction)
 
-    def prefer_food_or_random(self, directions):
-        //TODO: Implement to prefer food over random
-        return random.choice(directions)
+    def hungry_direction(self, directions):
+        ordered_directions = directions + [i for i in ['up', 'down', 'left', 'right'] if i not in directions]
+        self.get_distance(ordered_directions)
+        closest_foods = self.closest_food(directions)
+        food_selected = random.choice(closest_foods)
+        return self.direction[food_selected[0]][food_selected[1]]
 
     # def avoid_corners(self):
     #     # Add weights to area around walls. Assign heavy weight to corners
