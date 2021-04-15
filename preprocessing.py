@@ -155,47 +155,45 @@ class Preprocessing:
     def avoid_snakes(self):
         snake_weights = [[0] * self.width for _ in range(self.height)]
         queue = deque()
-        last, level = None, 0
-        for snake in self.snakes:
-            for body in snake["body"][:-1]:
-                queue.append((body['y'], body['x']))
-                last = (body['y'], body['x'])
-
-        while queue and level < 4:
-            y, x = queue.popleft()
-            flag = ((y, x) == last)
-            for _, ny, nx in self.neighbors(y, x, ['up', 'left']):
-                snake_weights[y][x] += 3 - level
-                if flag == 1:
-                    last = (ny, nx)
-                queue.append((ny, nx))
-            if flag == 1: level += 1
-
-        queue = deque()
-        last, level = None, 0
-        for snake in self.snakes:
-            for body in snake["body"][:-1]:
-                queue.append((body['y'], body['x']))
-                last = (body['y'], body['x'])
-
-        while queue and level < 4:
-            y, x = queue.popleft()
-            flag = ((y, x) == last)
-            for _, ny, nx in self.neighbors(y, x, ['down', 'right']):
-                snake_weights[y][x] += 2 - level
-                if flag == 1:
-                    last = (ny, nx)
-                queue.append((ny, nx))
-            if flag == 1: level += 1
-
+        last, level, flag = None, 0, 0
         for snake in self.snakes:
             snake_next_move = self.neighbors(snake["head"]['y'], snake["head"]['x'])
-            for _, y, x in snake_next_move:
-                snake_weights[y][x] +=1
+            for _, y, x in snake_next_move:  # area around head is the most dangerous
+                snake_weights[y][x] += 1
+            for body in snake["body"][:-1]:
+                queue.append((0, body['y'], body['x']))
+                last = (body['y'], body['x'])
+
+        while queue and level < 2 and not flag:
+            level, y, x = queue.popleft()
+            flag = ((y, x) == last)
+            for _, ny, nx in self.neighbors(y, x, ['up', 'left']):
+                snake_weights[ny][nx] += max(2 - level, 0)
+                if flag == 1:
+                    last = (ny, nx)
+                    flag = 0
+                queue.append((level + 1, ny, nx))
+
+        queue = deque()
+        last, level, flag = None, 0, 0
+        for snake in self.snakes:
+            for body in snake["body"][:-1]:
+                queue.append((0, body['y'], body['x']))
+                last = (body['y'], body['x'])
+
+        while queue and level < 2 and not flag:
+            level, y, x = queue.popleft()
+            flag = ((y, x) == last)
+            for _, ny, nx in self.neighbors(y, x, ['down', 'right']):
+                snake_weights[ny][nx] += max(2 - level, 0)
+                if flag == 1:
+                    last = (ny, nx)
+                    flag = 0
+                queue.append((level + 1, ny, nx))
 
         for i in range(self.height):
             for j in range(self.width):
-                self.weights[i][j] = self.weights[i][j] + int(snake_weights[i][j]) \
+                self.weights[i][j] = self.weights[i][j] + float("{:.2f}".format(snake_weights[i][j])) \
                     if self.weights[i][j] < INT_MAX else self.weights[i][j]
 
     def detect_food(self, coef):
