@@ -90,7 +90,8 @@ class Preprocessing:
     def closest_food(self, allowed_direction=None):
         if allowed_direction is None:
             allowed_direction = []
-        ordered_directions = allowed_direction + [i for i in ['up', 'down', 'left', 'right'] if i not in allowed_direction]
+        ordered_directions = allowed_direction + [i for i in ['up', 'down', 'left', 'right'] if
+                                                  i not in allowed_direction]
         self.get_distance(ordered_directions)
         distance = 122
         y, x = None, None
@@ -263,7 +264,7 @@ class Preprocessing:
                 break
         self.detect_food(food_coef)
 
-        #self.attack_rivals()
+        # self.attack_rivals()
 
     def get_shortest_path(self, level=5):
         """
@@ -276,14 +277,17 @@ class Preprocessing:
         path = []
         shortest_weight, best_direction, weight = INT_MAX, None, INT_MAX
         for direction, ny, nx in self.neighbors(y, x):
-            shortest_path_weight, tmp_visited = self.DFS(ny, nx, level - 1, [(self.weights[y][x], y, x), (self.weights[ny][nx], ny, nx)])
-            if shortest_path_weight + self.weights[ny][nx] < shortest_weight or \
-                    (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight):
-                best_direction = direction
-                shortest_weight = shortest_path_weight + self.weights[ny][nx]
-                weight = self.weights[ny][nx]
-                path = tmp_visited
-            self.distance[ny][nx] = shortest_path_weight + self.weights[ny][nx]
+            if self.weights[ny][nx] < INT_MAX:
+                shortest_path_weight, tmp_visited = self.DFS(ny, nx, level - 1, [(self.weights[y][x], y, x),
+                                                                                 (self.weights[ny][nx], ny, nx)])
+                if len(tmp_visited) >= len(path) and \
+                        (shortest_path_weight + self.weights[ny][nx] < shortest_weight or
+                         (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight)):
+                    best_direction = direction
+                    shortest_weight = shortest_path_weight + self.weights[ny][nx]
+                    weight = self.weights[ny][nx]
+                    path = tmp_visited
+                self.distance[ny][nx] = shortest_path_weight + self.weights[ny][nx]
         path[0] = ('Start', y, x)
         return best_direction, shortest_weight, path
 
@@ -293,9 +297,11 @@ class Preprocessing:
         shortest_weight, weight, path = INT_MAX, INT_MAX, []
         for _, ny, nx in self.neighbors(y, x):
             if (self.weights[ny][nx], ny, nx) not in visited and self.weights[ny][nx] < INT_MAX:
-                shortest_path_weight, tmp_visited = self.DFS(ny, nx, level - 1, visited + [(self.weights[ny][nx], ny, nx)])
-                if shortest_path_weight + self.weights[ny][nx] < shortest_weight or \
-                        (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight):
+                shortest_path_weight, tmp_visited = self.DFS(ny, nx, level - 1,
+                                                             visited + [(self.weights[ny][nx], ny, nx)])
+                if len(tmp_visited) >= len(path) and \
+                        (shortest_path_weight + self.weights[ny][nx] < shortest_weight or
+                         (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight)):
                     shortest_weight = shortest_path_weight + self.weights[ny][nx]
                     weight = self.weights[ny][nx]
                     path = tmp_visited
