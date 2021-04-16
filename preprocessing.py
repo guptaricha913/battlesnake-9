@@ -165,7 +165,7 @@ class Preprocessing:
             if snake["head"] != self.me["head"] and snake["length"] >= self.me["length"]:
                 snake_next_move = self.neighbors(snake["head"]['y'], snake["head"]['x'])
                 for _, y, x in snake_next_move:  # area around head is the most dangerous
-                    snake_weights[y][x] += 2
+                    snake_weights[y][x] += 4
             for body in snake["body"][:-1]:
                 queue.append((0, body['y'], body['x']))
                 last = (body['y'], body['x'])
@@ -254,8 +254,8 @@ class Preprocessing:
         self.avoid_corners()
         self.avoid_snakes()
 
-        health = [8, 12, 16, 20, 36, 60, 100]
-        coefficients = [1.7, 1.4, 1.2, 0.8, 0.5, 0.2, 0]
+        health = [12, 18, 36, 100]
+        coefficients = [1.6, 1.4, 1.2, 0.8]
         food_coef = 1
         for i in range(8):
             if self.me["health"] <= health[i]:
