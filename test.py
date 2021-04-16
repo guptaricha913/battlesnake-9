@@ -58,7 +58,7 @@ data = {
     "you": {
         "id": "snake-b67f4906-94ae-11ea-bb37",
         "name": "My Snake",
-        "health": 10,
+        "health": 60,
         "body": [
             {"x": 5, "y": 4},
             {"x": 5, "y": 3},

@@ -255,8 +255,8 @@ class Preprocessing:
         self.avoid_corners()
         self.avoid_snakes()
 
-        health = [12, 18, 36, 100]
-        coefficients = [1.6, 1.4, 1.2, 0.8]
+        health = [12, 36, 100]
+        coefficients = [1.6, 1.2, 1]
         food_coef = 1
         for i in range(8):
             if self.me["health"] <= health[i]:
@@ -282,7 +282,8 @@ class Preprocessing:
                                                                                  (self.weights[ny][nx], ny, nx)])
                 if len(tmp_visited) >= len(path) and \
                         (shortest_path_weight + self.weights[ny][nx] < shortest_weight or
-                         (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight)):
+                         (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight) or
+                         len(tmp_visited) > len(path)):
                     best_direction = direction
                     shortest_weight = shortest_path_weight + self.weights[ny][nx]
                     weight = self.weights[ny][nx]
@@ -301,7 +302,8 @@ class Preprocessing:
                                                              visited + [(self.weights[ny][nx], ny, nx)])
                 if len(tmp_visited) >= len(path) and \
                         (shortest_path_weight + self.weights[ny][nx] < shortest_weight or
-                         (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight)):
+                         (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight) or
+                         len(tmp_visited) > len(path)):
                     shortest_weight = shortest_path_weight + self.weights[ny][nx]
                     weight = self.weights[ny][nx]
                     path = tmp_visited
