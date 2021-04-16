@@ -288,7 +288,8 @@ class Preprocessing:
         return best_direction, shortest_weight, path
 
     def DFS(self, y, x, level, visited: list):
-        if level == 0: return 0, visited
+        if level == 0:
+            return 0, visited
         shortest_weight, weight, path = INT_MAX, INT_MAX, []
         for _, ny, nx in self.neighbors(y, x):
             if (self.weights[ny][nx], ny, nx) not in visited and self.weights[ny][nx] < INT_MAX:
@@ -299,4 +300,6 @@ class Preprocessing:
                     weight = self.weights[ny][nx]
                     path = tmp_visited
                 self.distance[ny][nx] = shortest_path_weight + self.weights[ny][nx]
+        if not path:
+            return 0, visited
         return shortest_weight, path
