@@ -25,7 +25,7 @@ class Preprocessing:
 
         self.weights = [[0] * self.width for _ in range(self.height)]
         """
-        self.weights can be modified by avoid_corners(), avoid_snakes(), attack_rivals() and detect_food()
+        self.weights can be modified by get_weights(), avoid_corners(), avoid_snakes(), attack_rivals() and detect_food()
         """
 
     def init_board(self):
@@ -37,12 +37,11 @@ class Preprocessing:
         """
         board = [[0] * self.width for _ in range(self.height)]
         for snake in self.snakes:
-            for body in snake["body"]:
+            # Snake's tail will be freed in the next move
+            for body in snake["body"][:-1]:
                 board[body["y"]][body["x"]] = 1
             head = snake["head"]
             board[head["y"]][head["x"]] = 2
-        for body in self.me["body"]:
-            board[body["y"]][body["x"]] = 1
         head = self.me["head"]
         board[head["y"]][head["x"]] = 3
         for food in self.food:
@@ -98,11 +97,14 @@ class Preprocessing:
         for food in self.food:
             if -1 < self.distance[food['y']][food['x']] <= distance and \
                     self.direction[food['y']][food['x']] in allowed_direction:
-                distance = self.distance[food['y']][food['x']]
                 print("closest_food:", (y, x), self.distance[y][x])
                 if self.distance[food['y']][food['x']] == distance:
-                    y, x = list(y) + [food['y']], list(x) + [food['x']]
+                    if type(y) is int:
+                        y, x = [y] + [food['y']], [x] + [food['x']]
+                    else:
+                        y, x = list(y) + [food['y']], list(x) + [food['x']]
                 else:
+                    distance = self.distance[food['y']][food['x']]
                     y, x = food['y'], food['x']
         return list(zip(y, x)) if type(y) is list else [(y, x)]
 
@@ -160,7 +162,7 @@ class Preprocessing:
         queue = deque()
         last, level, flag = None, 0, 0
         for snake in self.snakes:
-            if snake["head"] != self.me["head"]:
+            if snake["head"] != self.me["head"] and snake["length"] >= self.me["length"]:
                 snake_next_move = self.neighbors(snake["head"]['y'], snake["head"]['x'])
                 for _, y, x in snake_next_move:  # area around head is the most dangerous
                     snake_weights[y][x] += 2
@@ -270,4 +272,31 @@ class Preprocessing:
         :param level:
         :return:
         """
-        pass
+        y, x = self.me["head"]['y'], self.me["head"]['x']
+        path = []
+        shortest_weight, best_direction, weight = INT_MAX, None, INT_MAX
+        for direction, ny, nx in self.neighbors(y, x):
+            shortest_path_weight, tmp_visited = self.DFS(ny, nx, level - 1, [(self.weights[y][x], y, x), (self.weights[ny][nx], ny, nx)])
+            if shortest_path_weight + self.weights[ny][nx] < shortest_weight or \
+                    (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight):
+                best_direction = direction
+                shortest_weight = shortest_path_weight + self.weights[ny][nx]
+                weight = self.weights[ny][nx]
+                path = tmp_visited
+            self.distance[ny][nx] = shortest_path_weight + self.weights[ny][nx]
+        path[0] = ('Start', y, x)
+        return best_direction, shortest_weight, path
+
+    def DFS(self, y, x, level, visited: list):
+        if level == 0: return 0, visited
+        shortest_weight, weight, path = INT_MAX, INT_MAX, []
+        for _, ny, nx in self.neighbors(y, x):
+            if (self.weights[ny][nx], ny, nx) not in visited and self.weights[ny][nx] < INT_MAX:
+                shortest_path_weight, tmp_visited = self.DFS(ny, nx, level - 1, visited + [(self.weights[ny][nx], ny, nx)])
+                if shortest_path_weight + self.weights[ny][nx] < shortest_weight or \
+                        (shortest_path_weight + self.weights[ny][nx] == shortest_weight and self.weights[ny][nx] < weight):
+                    shortest_weight = shortest_path_weight + self.weights[ny][nx]
+                    weight = self.weights[ny][nx]
+                    path = tmp_visited
+                self.distance[ny][nx] = shortest_path_weight + self.weights[ny][nx]
+        return shortest_weight, path

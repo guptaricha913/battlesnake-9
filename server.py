@@ -47,14 +47,12 @@ class Battlesnake(object):
 
         # Choose a random direction to move in
         possible_moves = ["up", "down", "left", "right"]
-        legal_moves = info.movement_check()
-        #move = random.choice(legal_moves)
-        weighted_moves = info.get_weights(legal_moves)
-        moves = sorted(weighted_moves, key=lambda x: x[1])
-        move = moves[0]
+        info.get_weights()
+        move, shortest_weight, path = info.get_shortest_path(6)
+        print("move:", move)
+        print("smallest weight:", shortest_weight)
+        print("path:", path)
 
-        print(f"MOVE: {move}")
-        print(f"LEGAL MOVES: {weighted_moves}")
         return {"move": move}
 
     @cherrypy.expose
